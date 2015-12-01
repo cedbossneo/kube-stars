@@ -11,6 +11,7 @@
 
     A.EnemyShip.call(this, allParams);
 
+    this.rc = params.rc;
     this.vec = this.newVector(1);
 
     var img = new Image();

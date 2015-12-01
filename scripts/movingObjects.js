@@ -21,6 +21,15 @@
       this.imgParams.width,
       this.imgParams.height
     );
+    if (this.rc && this.rc.metadata.labels && this.rc.metadata.labels.player){
+      ctx.fillStyle = "red";
+      ctx.fillText(this.rc.metadata.labels.player, x, y + this.imgParams.height);
+    }
+    if (this.pod && this.pod.metadata.labels && this.pod.metadata.labels.player){
+      ctx.fillStyle = "red";
+      ctx.font = "20px Cuprum";
+      ctx.fillText(this.pod.metadata.labels.player, x, y + this.imgParams.height);
+    }
   };
 
   MovingObject.prototype.drawRotatedImg = function(ctx) {

@@ -31,7 +31,7 @@
   Game.DIM_X = 1296;
   Game.DIM_Y = 810;
   Game.NUM_STAR_DESTROYERS = 0;
-  Game.NUM_TIE_FIGHTERS = 2;
+  Game.NUM_TIE_FIGHTERS = 0;
 
   Game.prototype.enableVolume = function () {
     this.changeZIndex('enable-volume', -2000);
@@ -106,14 +106,32 @@
     }
   };
 
-  Game.prototype.addStarDestroyer = function () {
+  Game.prototype.addStarDestroyer = function (rc) {
     this.starDestroyers.push(new A.StarDestroyer({game: this,
-                                                  pos: this.randStartPosX()}));
+                                                  pos: this.randStartPosX(), rc: rc}));
   };
 
-  Game.prototype.addTieFighter = function () {
+  Game.prototype.addTieFighter = function (pod) {
     this.tieFighters.push(new A.TieFighter({game: this,
-                                            pos: this.randomPosition()}));
+                                            pos: this.randomPosition(), pod: pod}));
+  };
+
+  Game.prototype.destroyerExist = function (rc){
+      for (var i = 0; i < this.starDestroyers.length; i++){
+        if (this.starDestroyers[i].rc.metadata.uid === rc.metadata.uid){
+          return true;
+        }
+      }
+      return false;
+  };
+
+  Game.prototype.fighterExist = function (pod){
+    for (var i = 0; i < this.tieFighters.length; i++){
+      if (this.tieFighters[i].pod.metadata.uid === pod.metadata.uid){
+        return true;
+      }
+    }
+    return false;
   };
 
   Game.prototype.addEnemyShips = function () {
@@ -215,7 +233,7 @@
     this.moveObjects();
     this.enemyFireLasers();
     this.checkCollisions();
-    this.addEnemyShips();
+//    this.addEnemyShips();
   };
 
   Game.prototype.enemyFireLasers = function () {
@@ -237,10 +255,16 @@
   Game.prototype.remove = function (object) {
     if(object instanceof A.StarDestroyer){
       var idx = this.starDestroyers.indexOf(object);
-      this.starDestroyers = this.starDestroyers.slice(0, idx).concat(this.starDestroyers.slice(idx + 1));
+      console.log('Kill rc ' + this.starDestroyers[idx].rc.metadata.name);
+      A.Kubernetes.deleteReplicationController(this.starDestroyers[idx].rc, function(){
+        this.starDestroyers = this.starDestroyers.slice(0, idx).concat(this.starDestroyers.slice(idx + 1));
+      }.bind(this));
     } else if(object instanceof A.TieFighter) {
       var idx = this.tieFighters.indexOf(object);
-      this.tieFighters = this.tieFighters.slice(0, idx).concat(this.tieFighters.slice(idx + 1));
+      console.log('Kill pod ' + this.tieFighters[idx].pod.metadata.name);
+      A.Kubernetes.deletePod(this.tieFighters[idx].pod, function(){
+        this.tieFighters = this.tieFighters.slice(0, idx).concat(this.tieFighters.slice(idx + 1));
+      }.bind(this));
     } else if(object instanceof A.Laser) {
       var idx = this.lasers.indexOf(object);
       this.lasers = this.lasers.slice(0, idx).concat(this.lasers.slice(idx + 1));

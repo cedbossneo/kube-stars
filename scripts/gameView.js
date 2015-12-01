@@ -26,5 +26,24 @@
         clearInterval(updateFrames);
       }
     }.bind(this), 20);
+    var updateKubernetes = setInterval(function () {
+      A.Kubernetes.getPods(function(pods){
+        for (var i = 0; i < pods.items.length; i++){
+          if (pods.items[i].status.conditions.length === 1
+            && pods.items[i].status.conditions[0].type === 'Ready'
+            && pods.items[i].status.conditions[0].status === 'True'
+            && !currentGame.fighterExist(pods.items[i])){
+            currentGame.addTieFighter(pods.items[i]);
+          }
+        }
+      });
+      A.Kubernetes.getReplicationControllers(function(rcs){
+        for (var i = 0; i < rcs.items.length; i++){
+          if (!currentGame.destroyerExist(rcs.items[i])){
+            currentGame.addStarDestroyer(rcs.items[i]);
+          }
+        }
+      });
+    }, 1000);
   };
 })();

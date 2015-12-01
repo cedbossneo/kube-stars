@@ -5,6 +5,8 @@
   </head>
   <body style="background-color: black;">
     <link href='http://fonts.googleapis.com/css?family=Cuprum' rel='stylesheet' type='text/css'>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="scripts/kubernetes.js"></script>
     <script src="scripts/movingObjects.js"></script>
     <script src="scripts/util.js"></script>
     <script src="scripts/enemyShip.js"></script>
@@ -36,8 +38,8 @@
           <img class="life-img" id="xwing-img-2" src="assets/white_x_wing.png">
           <img class="life-img" id="xwing-img-1" src="assets/white_x_wing.png">
       </div>
-      <img class="background-img" src="assets/death_star.jpg"/>
-      <canvas id="game-canvas" width="1296px" height="810px">
+      <img class="background-img" src="assets/death_star.jpg" id="back"/>
+      <canvas id="game-canvas">
       </canvas>
       <div class="start-game-cont" id="start-game-cont">
         <span class='start-game'>Star Wars</span>
@@ -46,17 +48,22 @@
     </div>
 
     <script charset="utf-8">
-      var canvasEl = document.getElementById("game-canvas");
+    var canvasEl = document.getElementById("game-canvas");
+    var ctx = canvasEl.getContext("2d");
+    var newGame = new window.Asteroids.GameView(ctx);
 
-      var ctx = canvasEl.getContext("2d");
-      var newGame = new window.Asteroids.GameView(ctx);
+    function startGame() {
+      newGame.start();
+      var startGameCont = document.getElementById('start-game-cont');
+      startGameCont.style.zIndex = -100;
+    };
 
-
-      function startGame() {
-        newGame.start();
-        var startGameCont = document.getElementById('start-game-cont');
-        startGameCont.style.zIndex = -100;
-      };
+    document.body.onload = function(){
+      canvasEl.style.width = document.width + "px";
+      canvasEl.style.height = document.height + "px";
+      canvasEl.width = document.width;
+      canvasEl.height = document.height;
+    }
     </script>
   </body>
 </html>
